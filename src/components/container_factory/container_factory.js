@@ -15,6 +15,9 @@ import find from 'lodash.find'
 import isPlainObject from 'lodash.isplainobject'
 
 export default class ContainerFactory extends BaseObject {
+  get options() { return this._options }
+  set options(options) { this._options = options }
+
   constructor(options, loader, i18n) {
     super(options)
     this._i18n = i18n
@@ -54,7 +57,7 @@ export default class ContainerFactory extends BaseObject {
     var playbackPlugin = this.findPlaybackPlugin(resolvedSource, mimeType)
     var playback = new playbackPlugin(options, this._i18n)
 
-    options = $.extend(options, {playback: playback})
+    options = $.extend({}, options, {playback: playback})
 
     var container = new Container(options, this._i18n)
     var defer = $.Deferred()

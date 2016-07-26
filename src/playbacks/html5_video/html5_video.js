@@ -99,9 +99,10 @@ export default class HTML5Video extends Playback {
     this._stopped = false
     this._setupSrc(this.options.src)
     // backwards compatibility (TODO: remove on 0.3.0)
-    this.options.playback || (this.options.playback = this.options.playbackConfig)
+    this.options.playback || (this.options.playback = this.options.playbackConfig || {})
+    this.options.playback.disableContextMenu = this.options.playback.disableContextMenu || this.options.disableVideoTagContextMenu
 
-    var playbackConfig = (this.options.playback || {})
+    var playbackConfig = this.options.playback
     var preload = playbackConfig.preload || (Browser.isSafari ? 'auto' : this.options.preload)
 
     $.extend(this.el, {
@@ -109,8 +110,9 @@ export default class HTML5Video extends Playback {
       autoplay: this.options.autoPlay,
       poster: this.options.poster,
       preload: preload || 'metadata',
-      controls: playbackConfig.controls || this.options.useVideoTagDefaultControls,
-      crossOrigin: playbackConfig.crossOrigin
+      controls: (playbackConfig.controls || this.options.useVideoTagDefaultControls) && 'controls',
+      crossOrigin: playbackConfig.crossOrigin,
+      'x-webkit-playsinline': playbackConfig.playInline
     })
 
     // TODO should settings be private?
@@ -388,11 +390,7 @@ export default class HTML5Video extends Playback {
 
     this._src && this.$el.html(this.template({ src: this._src, type: this._typeFor(this._src) }))
 
-    if (this._options.useVideoTagDefaultControls) {
-      this.$el.attr('controls', 'controls')
-    }
-
-    if (this._options.disableVideoTagContextMenu) {
+    if (this.options.playback.disableContextMenu) {
       this.$el.on('contextmenu', () => {
         return false
       })
